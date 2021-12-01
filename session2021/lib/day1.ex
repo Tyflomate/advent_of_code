@@ -15,10 +15,15 @@ defmodule Day1 do
   end
 
   defp part1 do
-    count_increased_values(input())
+    input()
+    |> count_increased_values
   end
 
   defp part2 do
+    input()
+    |> Enum.chunk_every(3, 1, [])
+    |> Enum.map(&Enum.sum/1)
+    |> count_increased_values
   end
 
   defp count_increased_values(array) do
@@ -34,11 +39,5 @@ defmodule Day1 do
          end
        )
     |> elem(0)
-  end
-
-  defp group_and_sum_by_3(array) do
-    case array do
-      [h1 | [h2 | [h3 | tails]]] ->
-    end
   end
 end
