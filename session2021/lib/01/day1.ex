@@ -4,7 +4,7 @@ defmodule Day1 do
   """
 
   def input do
-    {:ok, input} = File.read('./inputs/input1.txt')
+    {:ok, input} = File.read('./lib/01/input.txt')
     input
     |> String.split("\n", trim: true)
     |> Enum.map(&String.to_integer/1)
@@ -26,8 +26,7 @@ defmodule Day1 do
     |> count_increased_values
   end
 
-  defp count_increased_values(array) do
-    [head | tails] = array
+  defp count_increased_values([head | tails]) do
     tails
     |> List.foldl(
          {0, head},
