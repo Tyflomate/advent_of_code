@@ -2,7 +2,7 @@ defmodule DayTemplate do
   @moduledoc false
 
   def input do
-    {:ok, input} = File.read('input.txt')
+    {:ok, input} = File.read('./lib/X/input.txt')
     input
   end
 
