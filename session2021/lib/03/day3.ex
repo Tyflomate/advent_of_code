@@ -31,7 +31,7 @@ defmodule Day3 do
     [min, max]
   end
 
-  def rate_from_input([], _, _) do [] end
+  def rate_from_input([], _, _), do: []
   def rate_from_input([x | []], _, _), do: x
   def rate_from_input(input, index, oxygen_rate?) do
     [min, max] = input |> List.zip |> Enum.at(index) |> Tuple.to_list |> Day3.min_max_from
