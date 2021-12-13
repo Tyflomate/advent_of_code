@@ -111,7 +111,7 @@ defmodule Day9 do
   def get_neighbors_basins([], _, _, _), do: []
   def get_neighbors_basins(neighbors, list, max_x, max_y) do
     neighbors
-    |> Enum.flat_map(&get_basins(&1, list, max_x, max_y))
+    |> Enum.flat_map(&get_basin(&1, list, max_x, max_y))
   end
 
   def triplet(list, 0, _), do: [[] | [list |> Enum.at(0) | [list |> Enum.at(1)]]]
@@ -124,14 +124,27 @@ defmodule Day9 do
     |> Enum.filter(fn {n, _} -> ele + 1 == n && n != 9 end)
   end
 
-  def get_basins(ele, list, max_x, max_y) do
+  def get_basin(ele, list, max_x, max_y) do
     [ele] ++ get_neighbors_basins(basin_neighbors(ele, list, max_x, max_y), list, max_x, max_y)
   end
 
-  def get_basin_size(ele, list, max_x, max_y) do
-    get_basins(ele, list, max_x, max_y)
-    |> Enum.uniq
-    |> Enum.count
+  def get_basins(ele, list, max_x, max_y) do
+    get_basin(ele, list, max_x, max_y)
+  end
+
+  def intersection?(basin, previous_basin) do
+    Enum.any?(basin, fn x -> x in previous_basin end)
+  end
+
+  def merge_basins(basin, previous_basins) do
+    case Enum.filter(previous_basins, &intersection?(basin, &1)) do
+      [] -> [basin | previous_basins]
+      extras ->
+        IO.puts("intersection!")
+        loners = previous_basins -- extras
+        reunited_basins = extras |> Enum.map(&(basin ++ &1))
+        [reunited_basins | loners]
+    end
   end
 
   def basins_size(list = [head | _]) do
@@ -140,7 +153,10 @@ defmodule Day9 do
 
     list
     |> low_points
-    |> Enum.map(&get_basin_size(&1, list, max_x, max_y))
+    |> Enum.map(&get_basins(&1, list, max_x, max_y))
+    |> Enum.reduce([], &merge_basins/2)
+    |> Enum.map(&Enum.uniq/1)
+    |> Enum.map(&Enum.count/1)
   end
 
   defp part2 do
@@ -148,6 +164,6 @@ defmodule Day9 do
     |> basins_size
     |> Enum.sort(:desc)
     |> Enum.take(3)
-    |> Enum.reduce(fn x, acc -> acc * x end)
+    |> Enum.product()
   end
 end

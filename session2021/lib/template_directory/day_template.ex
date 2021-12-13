@@ -11,12 +11,14 @@ defmodule DayTemplate do
   end
 
   defp part1 do
-    input()
+    #input()
     #|>
+    nil
   end
 
   defp part2 do
-    input()
+    #input()
     #|>
+    nil
   end
 end
