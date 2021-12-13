@@ -17,22 +17,22 @@ defmodule Day9 do
     n1 = curr_line |> Enum.at(max_x - 1)
     n2 = next_line |> Enum.at(max_x)
 
-    {current, [n1, n2]}
+    {current, [{n1, {max_x - 1, 0}}, {n2, {max_x, 1}}]}
   end
-  def neighbors(max_x, _, [prev_line | [curr_line | [next_line | []]]], max_x) do
+  def neighbors(max_x, y, [prev_line | [curr_line | [next_line | []]]], max_x) do
     current = curr_line |> Enum.at(max_x)
     n1 = prev_line |> Enum.at(max_x)
     n2 = curr_line |> Enum.at(max_x - 1)
     n3 = next_line |> Enum.at(max_x)
 
-    {current, [n1, n2, n3]}
+    {current, [{n1, {max_x, y - 1}}, {n2, {max_x - 1, y}}, {n3, {max_x, y + 1}}]}
   end
   def neighbors(0, 0, [_ | [curr_line | [next_line | []]]], _) do
     current = curr_line |> Enum.at(0)
     n1 = curr_line |> Enum.at(1)
     n2 = next_line |> Enum.at(0)
 
-    {current, [n1, n2]}
+    {current, [{n1, {1, 0}}, {n2, {0, 1}}]}
   end
   def neighbors(x, 0, [_ | [curr_line | [next_line | []]]], _) do
     current = curr_line |> Enum.at(x)
@@ -40,51 +40,51 @@ defmodule Day9 do
     n2 = curr_line |> Enum.at(x + 1)
     n3 = next_line |> Enum.at(x)
 
-    {current, [n1, n2, n3]}
+    {current, [{n1, {x - 1, 0}}, {n2, {x + 1, 0}}, {n3, {x, 1}}]}
   end
-  def neighbors(0, _, [prev_line | [curr_line | [next_line | []]]], _) do
+  def neighbors(0, y, [prev_line | [curr_line | [next_line | []]]], _) do
     current = curr_line |> Enum.at(0)
     n1 = prev_line |> Enum.at(0)
     n2 = curr_line |> Enum.at(1)
     n3 = next_line |> Enum.at(0)
 
-    {current, [n1, n2, n3]}
+    {current, [{n1, {0, y - 1}}, {n2, {1, y}}, {n3, {0, y + 1}}]}
   end
-  def neighbors(x, _, [prev_line | [curr_line | [next_line | []]]], _) do
+  def neighbors(0, y, [prev_line | [curr_line | []]], _) do
+    current = curr_line |> Enum.at(0)
+    n1 = prev_line |> Enum.at(0)
+    n2 = curr_line |> Enum.at(1)
+
+    {current, [{n1, {0, y - 1}}, {n2, {1, y}}]}
+  end
+  def neighbors(max_x, y, [prev_line | [curr_line | []]], max_x) do
+    current = curr_line |> Enum.at(max_x)
+    n1 = prev_line |> Enum.at(max_x)
+    n2 = curr_line |> Enum.at(max_x - 1)
+
+    {current, [{n1, {max_x, y - 1}}, {n2, {max_x - 1, y}}]}
+  end
+  def neighbors(x, y, [prev_line | [curr_line | []]], _) do
+    current = curr_line |> Enum.at(x)
+    n1 = prev_line |> Enum.at(x)
+    n2 = curr_line |> Enum.at(x - 1)
+    n3 = curr_line |> Enum.at(x + 1)
+
+    {current, [{n1, {x, y - 1}}, {n2, {x - 1, y}}, {n3, {x + 1, y}}]}
+  end
+  def neighbors(x, y, [prev_line | [curr_line | [next_line | []]]], _) do
     current = curr_line |> Enum.at(x)
     n1 = prev_line |> Enum.at(x)
     n2 = curr_line |> Enum.at(x - 1)
     n3 = curr_line |> Enum.at(x + 1)
     n4 = next_line |> Enum.at(x)
 
-    {current, [n1, n2, n3, n4]}
-  end
-  def neighbors(0, _, [prev_line | [curr_line | []]], _) do
-    current = curr_line |> Enum.at(0)
-    n1 = prev_line |> Enum.at(0)
-    n2 = curr_line |> Enum.at(1)
-
-    {current, [n1, n2]}
-  end
-  def neighbors(max_x, _, [prev_line | [curr_line | []]], max_x) do
-    current = curr_line |> Enum.at(max_x)
-    n1 = prev_line |> Enum.at(max_x)
-    n2 = curr_line |> Enum.at(max_x - 1)
-
-    {current, [n1, n2]}
-  end
-  def neighbors(x, _, [prev_line | [curr_line | []]], _) do
-    current = curr_line |> Enum.at(x)
-    n1 = prev_line |> Enum.at(x)
-    n2 = curr_line |> Enum.at(x - 1)
-    n3 = curr_line |> Enum.at(x + 1)
-
-    {current, [n1, n2, n3]}
+    {current, [{n1, {x, y - 1}}, {n2, {x - 1, y}}, {n3, {x + 1, y}}, {n4, {x, y + 1}}]}
   end
 
   def low_point?(x, y, low_points, curr_triplets, max_x) do
     {current, neighbors} = neighbors(x, y, curr_triplets, max_x)
-    if Enum.all?(neighbors, fn ele -> ele > current end), do: [current | low_points], else: low_points
+    if Enum.all?(neighbors, fn {ele, _} -> ele > current end), do: [{current, {x, y}} | low_points], else: low_points
   end
 
   def filter_low_points(curr_triplet, {y, low_points}, max_x) do
@@ -103,13 +103,51 @@ defmodule Day9 do
   end
 
   defp part1 do
-    lp = input() |> low_points
+    lp = input() |> low_points |> Enum.map(&elem(&1, 0))
 
     Enum.sum(lp) + Enum.count(lp)
   end
 
+  def get_neighbors_basins([], _, _, _), do: []
+  def get_neighbors_basins(neighbors, list, max_x, max_y) do
+    neighbors
+    |> Enum.flat_map(&get_basins(&1, list, max_x, max_y))
+  end
+
+  def triplet(list, 0, _), do: [[] | [list |> Enum.at(0) | [list |> Enum.at(1)]]]
+  def triplet(list, max_y, max_y), do: [list |> Enum.at(max_y - 1) | [list |> List.last | []]]
+  def triplet(list, y, _), do: [list |> Enum.at(y - 1) | [list |> Enum.at(y) | [list |> Enum.at(y + 1)]]]
+
+  def basin_neighbors({ele, {x, y}}, list, max_x, max_y) do
+    neighbors(x, y, triplet(list, y, max_y), max_x)
+    |> elem(1)
+    |> Enum.filter(fn {n, _} -> ele + 1 == n && n != 9 end)
+  end
+
+  def get_basins(ele, list, max_x, max_y) do
+    [ele] ++ get_neighbors_basins(basin_neighbors(ele, list, max_x, max_y), list, max_x, max_y)
+  end
+
+  def get_basin_size(ele, list, max_x, max_y) do
+    get_basins(ele, list, max_x, max_y)
+    |> Enum.uniq
+    |> Enum.count
+  end
+
+  def basins_size(list = [head | _]) do
+    max_x = head |> Enum.count |> Kernel.-(1)
+    max_y = list |> Enum.count |> Kernel.-(1)
+
+    list
+    |> low_points
+    |> Enum.map(&get_basin_size(&1, list, max_x, max_y))
+  end
+
   defp part2 do
     input()
-    |>
+    |> basins_size
+    |> Enum.sort(:desc)
+    |> Enum.take(3)
+    |> Enum.reduce(fn x, acc -> acc * x end)
   end
 end
