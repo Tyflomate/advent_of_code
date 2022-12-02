@@ -1,0 +1,8 @@
+source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby "3.1.2"
+
+gem 'advent_of_code_generator'
+gem 'rubocop'
+gem 'pry'
