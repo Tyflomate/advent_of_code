@@ -3,7 +3,7 @@
 require "pry"
 
 class Day09
-  BASE_POS = { x: 0, y: 0 }
+  BASE_POS = [0, 0]
 
   def initialize
     @input = File.readlines('./09/input.txt', chomp: true).map do |line|
@@ -16,7 +16,7 @@ class Day09
     @positions = Array.new(2) { BASE_POS.dup }
     @pos_visited = Set.new([BASE_POS.dup])
     @input.each do |(direction, steps)|
-      move(direction, steps)
+      steps.times { move(direction) }
     end
     @pos_visited.size
   end
@@ -25,74 +25,50 @@ class Day09
     @positions = Array.new(10) { BASE_POS.dup }
     @pos_visited = Set.new([BASE_POS.dup])
     @input.each do |(direction, steps)|
-      move(direction, steps)
+      steps.times { move(direction) }
     end
     @pos_visited.size
   end
 
   private
 
-  def move(direction, steps)
-    send("move_head_#{direction}", steps)
+  def move(direction)
+    send("move_head_#{direction}")
     (1...@positions.size).each do |tail_id|
-      move_tail(direction, tail_id)
+      move_tail(tail_id)
     end
+    @pos_visited.add(@positions.last)
   end
 
-  def move_tail(direction, tail_id)
-    ref_pos = @positions[tail_id - 1]
-    tail_pos = @positions[tail_id]
-    new_pos, new_poses = send("move_tail_#{direction}", tail_pos, ref_pos)
-    binding.pry
-    @positions[tail_id] = new_pos if new_pos
-    @pos_visited += (new_poses || [])
-  end
-
-  def move_head_R(steps)
-    @positions[0][:x] += steps
-  end
-
-  def move_tail_R(tail_pos, ref_pos)
-    if tail_pos[:x] < ref_pos[:x] - 1
-      new_pos = { x: ref_pos[:x] - 1, y: ref_pos[:y] }
-      new_poses = (tail_pos[:x] + 1...ref_pos[:x]).map { { x: _1, y: ref_pos[:y] } }
-      [new_pos, new_poses]
+  def move_tail(tail_id)
+    tail_x, tail_y = @positions[tail_id]
+    ref_x, ref_y = @positions[tail_id - 1]
+    new_x, new_y = tail_x, tail_y
+    x_diff = ref_x - tail_x
+    y_diff = ref_y - tail_y
+    if x_diff.abs > 1
+      new_x += x_diff > 0 ? 1 : -1
+      new_y += y_diff > 0 ? 1 : -1 if y_diff != 0
+    elsif y_diff.abs > 1
+      new_y += y_diff > 0 ? 1 : -1
+      new_x += x_diff > 0 ? 1 : -1 if x_diff != 0
     end
+    @positions[tail_id] = [new_x, new_y]
   end
 
-  def move_head_L(steps)
-    @positions[0][:x] -= steps
+  def move_head_R
+    @positions[0][0] += 1
   end
 
-  def move_tail_L(tail_pos, ref_pos)
-    if tail_pos[:x] > ref_pos[:x] + 1
-      new_pos = { x: ref_pos[:x] + 1, y: ref_pos[:y] }
-      new_poses = (ref_pos[:x] + 1...tail_pos[:x]).map { { x: _1, y: ref_pos[:y] } }
-      [new_pos, new_poses]
-    end
+  def move_head_L
+    @positions[0][0] -= 1
   end
 
-  def move_head_U(steps)
-    @positions[0][:y] += steps
+  def move_head_U
+    @positions[0][1] += 1
   end
 
-  def move_tail_U(tail_pos, ref_pos)
-    if tail_pos[:y] < ref_pos[:y] - 1
-      new_pos = { x: ref_pos[:x], y: ref_pos[:y] - 1 }
-      new_poses = (tail_pos[:y] + 1...ref_pos[:y]).map { { x: ref_pos[:x], y: _1 } }
-      [new_pos, new_poses]
-    end
-  end
-
-  def move_head_D(steps)
-    @positions[0][:y] -= steps
-  end
-
-  def move_tail_D(tail_pos, ref_pos)
-    if tail_pos[:y] > ref_pos[:y] + 1
-      new_pos = { x: ref_pos[:x], y: ref_pos[:y] + 1 }
-      new_poses = (ref_pos[:y] + 1...tail_pos[:y]).map { { x: ref_pos[:x], y: _1 } }
-      [new_pos, new_poses]
-    end
+  def move_head_D
+    @positions[0][1] -= 1
   end
 end
