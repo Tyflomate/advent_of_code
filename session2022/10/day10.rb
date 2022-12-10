@@ -24,28 +24,21 @@ class Day10
   end
 
   def part2
-    @crt = Array.new(@height) { ' ' * @width }
-
     @cycles_instruction.each_with_index do |v, i|
       draw(i)
       @x += v
     end
-
-    @crt.each { puts _1 }
   end
 
   private
 
   def draw(index)
-    x, y = crt_pos(index)
-    @crt[y][x] = '#' if sprite_pixels.include?(x)
+    crt_x = index % @width
+    char = sprite_pixels.include?(crt_x) ? '#' : ' '
+    print "#{crt_x == 0 ? "\n": ""}#{char}"
   end
 
   def sprite_pixels
     [@x - 1, @x, @x + 1]
-  end
-
-  def crt_pos(index)
-    [index % @width, index / @width]
   end
 end
